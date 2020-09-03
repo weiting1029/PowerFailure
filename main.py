@@ -17,7 +17,8 @@ import math
 
 
 from kuramoto import solkuramoto, solkuramoto2
-from Disturbances import normaldisturbances, violationcheck, globalcheck,globalchecksubset
+from disturbances import normaldisturbances
+from violation_checks import violationcheck, globalcheck,globalchecksubset
 import time
 
 #%%parameter setting
@@ -53,72 +54,62 @@ omega0 = np.zeros(n)
 
 
 
+#%%no disturbances
+t=15
+nn=1000
+dt = np.linspace(0,t, nn+1)
+omega0 = np.array([0.666,1.481,-0.051,-0.153, -0.357, -0.201, 0.255, 0.465, -0.941, -0.012])
 
-#replace the diagonal elements of A with zeros
-# exA = A
-# np.fill_diagonal(exA,0)
+sol0 = np.zeros((2*n))
+sol0[0:n] = theta0
+sol0[n:2*n]= omega0
+
+
+starttime = time.time()
+vec_sol = solkuramoto(sol0,dt)
+t1 = time.time()-starttime
+
+starttime = time.time()
+vec_sol2 = solkuramoto2(sol0, dt)
+t2 = time.time()-starttime
+
+
+sol_theta = vec_sol[:,0:n]
+sol_omega = vec_sol[:,n:2*n]
+
+
+
+
+sol_theta2 = vec_sol2[:,0:n]
+sol_omega2 = vec_sol2[:,n:2*n]
+
+
+
 
 #calculate the sychronization frequency
-# Omee =  np.sum(Ome)/np.sum(D)
-# Ome0 = Ome-D*Omee
+Omee =  np.sum(Ome)/np.sum(D)
+Ome0 = Ome-D*Omee
+
+check_times = 100
+
+# check_omega = violationcheck(sol_omega,100,1)
+# check_theta = violationcheck(sol_theta,100,1)
+# check_thetaomega = np.outer(check_omega, check_theta)
+# np.where(check_thetaomega == 2, check_thetaomega, np.zeros(np.size(check_thetaomega)))
+# np.where(check_thetaomega == 0, check_thetaomega, np.ones(np.size(check_thetaomega)))
 
 
-# #%%no disturbances
-# t=15
-# nn=1000
-# dt = np.linspace(0,t, nn+1)
-# omega0 = np.array([0.666,1.481,-0.051,-0.153, -0.357, -0.201, 0.255, 0.465, -0.941, -0.012])
-
-# sol0 = np.zeros((2*n))
-# sol0[0:n] = theta0
-# sol0[n:2*n]= omega0
-
-
-# starttime = time.time()
-# vec_sol = solkuramoto(sol0,dt)
-# t1 = time.time()-starttime
-
-# starttime = time.time()
-# vec_sol2 = solkuramoto2(sol0, dt)
-# t2 = time.time()-starttime
-
-
-# sol_theta = vec_sol[:,0:n]
-# sol_omega = vec_sol[:,n:2*n]
+all_check = globalcheck(vec_sol, check_times, np.array([1,1]), n, nn)
 
 
 
 
-# sol_theta2 = vec_sol2[:,0:n]
-# sol_omega2 = vec_sol2[:,n:2*n]
-
-
-
-
-# #calculate the sychronization frequency
-# Omee =  np.sum(Ome)/np.sum(D)
-# Ome0 = Ome-D*Omee
-
-# check_times = 100
-
-# # check_omega = violationcheck(sol_omega,100,1)
-# # check_theta = violationcheck(sol_theta,100,1)
-# # check_thetaomega = np.outer(check_omega, check_theta)
-# # np.where(check_thetaomega == 2, check_thetaomega, np.zeros(np.size(check_thetaomega)))
-# # np.where(check_thetaomega == 0, check_thetaomega, np.ones(np.size(check_thetaomega)))
-
-
-# all_check = globalcheck(vec_sol, check_times, np.array([1,1]), n, nn)
-
-
-
-
-#%%with omega disturbances
+#%%with omega disturbances, against different candidates of numbers of checks 
 starttime = time.time()
 omega0 = np.zeros(n)
 KK = 2#repetition times  
 t = 5
-nn = 1000
+nn = 2
 dt = np.linspace(0, t, nn+1)
 sigma = 0.1
 disturb_norm = normaldisturbances(n,KK,sigma)
@@ -155,7 +146,7 @@ print("Total time needed= {:2.2}sec".format(totaltime))
 
 
 
-#%%with omega disturbances
+#%%with omega disturbances, against different candidates of sample sizes 
 starttime = time.time()
 omega0 = np.zeros(n)
 t = 5
@@ -163,24 +154,6 @@ nn = 1000
 check_times = 100
 dt = np.linspace(0, t, nn+1)
 
-
-# check_omega = np.zeros(n)
-# check_theta = np.zeros(n)
-# check_thetaomega = np.zeros(n)
-
-
-# sol0 = np.zeros((2*n))
-# sol0[0:n] = theta0
-# sol0[n:2*n]= omega0+disturb_norm[0]
-# vec_sol = solkuramoto(sol0,dt)
-# sol_theta = vec_sol[:,0:n]
-# sol_omega = vec_sol[:,n:2*n]
-# check_omega = violationcheck(sol_omega,100,1)+check_omega
-# check_theta = violationcheck(sol_theta,100,0.25)+check_theta
-# temp_check_thetaomega = check_omega+check_theta
-# temp_check_thetaomega= np.where(temp_check_thetaomega == 2, temp_check_thetaomega, np.zeros(n))
-# temp_check_thetaomega=np.where(temp_check_thetaomega == 0, temp_check_thetaomega, np.ones(n))
-# check_thetaomega = check_thetaomega + temp_check_thetaomega
 
 Ome0 = np.zeros(n)
 sigma = 0.1
@@ -191,18 +164,9 @@ vcheck_theta = np.zeros((NN,n))
 vcheck_any = np.zeros((NN,n))
 
 
-
-
-
-
-
 for j in range(NN):
     KK = int(opt_size[j])
     disturb_norm = normaldisturbances(n,KK,sigma)
-    # check_omega = np.zeros(n)
-    # check_theta = np.zeros(n)
-    # check_jointomega = np.zeros((n,n))
-    # check_jointtheta = np.zeros((n,n))
     
     for k in range(KK):
         sol0 = np.pad(disturb_norm[k], (n,0), 'constant', constant_values=(0,0))
@@ -222,7 +186,7 @@ totaltime = stoptime-starttime
 
     
     
-#%% sample size  = 1000, check times =  100
+#%% sample size  = 1000, check times =  100 which are selected based on above results
 starttime = time.time()
 omega0 = np.zeros(n)
 Ome0 = np.zeros(n)
@@ -230,7 +194,7 @@ KK =1000#repetition times
 t = 5
 nn = 1000
 dt = np.linspace(0, t, nn+1)
-sigma = 0.5
+sigma = 0.05
 check_times = 100
 thres = np.array([0.35,0.5])
 
@@ -268,56 +232,6 @@ mcheck_any = mcheck_any /KK
 stoptime = time.time()
 totaltime = stoptime-starttime
 print("Total time needed= {:2.2}sec".format(totaltime))
-
-
-
-
-
-# #%%%test the subset method 
-
-# starttime = time.time()
-# omega0 = np.zeros(n)
-# KK =1000#repetition times  
-# t = 5
-# nn = 1000
-# dt = np.linspace(0, t, nn+1)
-# sigma = 0.1
-# disturb_norm = normaldisturbances(n,KK,sigma)
-# Ome0 = np.zeros(n)
-# check_times = 100
-# vcheck_omega = np.zeros(n)
-# vcheck_theta = np.zeros(n)
-# vcheck_any = np.zeros(n)
-# mcheck_omega = np.zeros((n,n))
-# mcheck_theta = np.zeros((n,n))
-# mcheck_any = np.zeros((n,n))   
-
-# for k in range(KK):
-#     sol0 = np.pad(disturb_norm[k], (n,0), 'constant', constant_values=(0,0))
-#     vec_sol = solkuramoto2(sol0,dt)
-#     all_check = globalchecksubset(vec_sol, check_times, np.array([0.35,0.5]), n, nn)
-#     vcheck_theta += all_check[0]
-#     vcheck_omega += all_check[1]
-#     vcheck_any += all_check[2]
-    
-#     mcheck_theta += np.outer(all_check[0],all_check[0])
-#     mcheck_omega += np.outer(all_check[1],all_check[1])
-#     mcheck_any += np.outer(all_check[2],all_check[2])
-    
-# vcheck_omega = vcheck_omega/KK
-# vcheck_theta = vcheck_theta/KK
-# vcheck_any = vcheck_any/KK
-# mcheck_theta = mcheck_theta/KK
-# mcheck_omega = mcheck_omega/KK
-# mcheck_any = mcheck_any /KK
-
-
-# stoptime = time.time()
-# totaltime = stoptime-starttime
-# print("Total time needed= {:2.2}sec".format(totaltime))
-
-
-
 
 
 
@@ -380,7 +294,7 @@ plt.title("Thres 1 = 0.35, Thres 2 = 0.5")
 plt.legend();
 
 
-#%%rocof threshold 1
+#%%against thres 1 (for the recof)
 
 
 candidate_thres1 = np.array([0.2,0.3,0.4,0.5,0.6])
@@ -415,9 +329,7 @@ plt.legend();
 
 
 
-#%%% against thres 2
-
-
+#%%% against thres 2(for the absolute violation rates)
 
 candidate_thres2 = np.array([0.4,0.5,0.6,0.7,0.8])
 rate_thres2 = np.zeros((len(candidate_sigma),4))
@@ -599,18 +511,6 @@ plt.title('Derivatives of natural rotation frequencies')
 
 
 
-# # %% plot dOmega
-# for i in range(n):
-#     domega_i = domega[:,i]
-#     plt.plot(dt[1:], domega_i, "-", label="domega"+ str(i+1))
-
-
-# plt.xlabel("Time")
-# plt.ylabel("dOmega")
-# plt.legend();
-
-
-
 #%% plot against number of checks 1
 
 
@@ -646,11 +546,11 @@ plt.ylim(0, 1)
 plt.legend();
 
 
-#%%%
+#%%%visulizations of joint stats
 
-
-
-
+plt.matshow(mcheck_any)
+plt.title("Joint any-violation rates")
+plt.colorbar()
 
 
 
