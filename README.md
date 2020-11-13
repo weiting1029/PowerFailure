@@ -1,6 +1,6 @@
 # PowerFailure
 There are three four modules in the library 
-## Main.py
+## main.py
 Defines the Kuramoto model and its solver
 
 Run robustness check experiments of different parameters
