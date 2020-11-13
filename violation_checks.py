@@ -1,4 +1,4 @@
-
+                                                                                                                     
 
 
 import numpy as np 
@@ -69,7 +69,7 @@ def globalchecksubset(xx,checktimes,thres,n,tt):
         thres = [thres1, thres2]
     n : int 
         number of nodes
-    tt : int
+    tt : int 
         number of integration steps 
         
     Returns
