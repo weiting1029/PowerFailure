@@ -1,18 +1,18 @@
 # PowerFailure
 There are three four modules in the library 
-## main rountine 
+## Main.py
 Defines the Kuramoto model and its solver
 
 Run robustness check experiments of different parameters
 
 Plotting
 
-## Random disturbance generating 
+## disturbance.py
 
-## Violation checks 
+## violation_check.py
 Three types of violation, absolute frequency rate, RoCof and any violation rate 
 
-## Network
+## network.py
 Import Network objects and transform them into adjcent matrices 
 
 Define edge_removing 
