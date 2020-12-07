@@ -8,7 +8,7 @@ from disturbancesGnr import normaldisturbances
 from scipy.integrate import odeint
 from violationChecking import violationcheck,globalcheck,globalchecksubset
 import time 
-
+ 
 
 class PowerNetworkSolver(object):
 	def __init__(self, int_theta, int_omega, A, ngnr, D, M, K):
@@ -20,6 +20,12 @@ class PowerNetworkSolver(object):
 		self.D = D 
 		self.M = M
 		self.K = K
+
+
+
+
+
+
 
 
 	def kuramoto2nd(self,X,t):
