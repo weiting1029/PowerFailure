@@ -1,6 +1,9 @@
 from numpy.random import multivariate_normal
 import numpy as np
 
+
+
+
 def normaldisturbances(n,k,sigma):
     """
     ...
