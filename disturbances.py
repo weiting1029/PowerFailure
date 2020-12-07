@@ -1,16 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Aug  2 21:39:39 2020
-
-@author: weiting
-"""
-
-
-
-import numpy as np 
-from numpy.random import multivariate_normal
-
+from numpy.random import multivariate_normalx
 
 def normaldisturbances(n,k,sigma):
     """
@@ -33,7 +21,3 @@ def normaldisturbances(n,k,sigma):
     cov = np.eye(n)*sigma 
     mu = np.zeros(n)
     return multivariate_normal(mu,cov,k)
-    
-
- 
-
