@@ -13,7 +13,7 @@ import sys
 
  
 def networkTransform(case):
-    ppc = case #try case14() for a smaller network
+    ppc = case #try case14() for a smaller network  
     network = pypsa.Network()
     network.import_from_pypower_ppc(ppc)
     network.determine_network_topology()
