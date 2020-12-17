@@ -11,7 +11,7 @@ import time
  
 
 class PowerNetworkSolver(object):
-	def __init__(self, int_theta, int_omega, A, ngnr, D, M, K):
+	def __init__(self, int_theta, int_omega, A, ngnr, D, M, K, OMEGA):
 		super(PowerNetworkSolver, self).__init__()
 		self.int_omega = int_omega
 		self.int_theta = int_theta
@@ -20,6 +20,7 @@ class PowerNetworkSolver(object):
 		self.D = D 
 		self.M = M
 		self.K = K
+		self.OMEGA = OMEGA
 
 
 
@@ -30,15 +31,16 @@ class PowerNetworkSolver(object):
 
 	def kuramoto2nd(self,X,t):
 		n = self.ngnr
-		Ome0 =  self.int_omega-self.D*(np.sum(self.int_omega)/np.sum(self.D))
-		theta = X[0:n]
-		theta = theta-np.sum(self.int_omega)/np.sum(self.D)*t
-		omega = X[n:2*n]
-		dtheta = omega 
+		syn_omega = np.sum(self.OMEGA)/np.sum(self.D)
+		OMEGA0 =  self.OMEGA-self.D*syn_omega
+		
+		theta = X[0:n]-syn_omega*t
+		dtheta = X[n:2*n]-syn_omega
 		matrix1 = np.repeat(np.reshape(theta,(1,n)),n,axis=0)
 		matrix2 = np.transpose(matrix1)-matrix1
 		sinmatrix  = np.sin(matrix2)
-		domega = (1/self.M)*(-self.D*omega+Ome0-self.K*np.sum(np.multiply(sinmatrix, self.A),axis=1))
+		#omega = dtheta
+		domega = (1/self.M)*(-self.D*dtheta+OMEGA0-self.K*np.sum(np.multiply(sinmatrix, self.A),axis=1))
 		return np.append(dtheta,domega)
 
 	def solkuramoto(self, sol0, dt):
