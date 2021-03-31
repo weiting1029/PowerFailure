@@ -1,7 +1,6 @@
 from numpy.random import multivariate_normal
 import numpy as np
-
-
+from numpy.random import seed
 
 
 def normaldisturbances(n,k,sigma):
@@ -22,6 +21,7 @@ def normaldisturbances(n,k,sigma):
         (k,n)
 
     """
+    seed(100)#control the random disturbance generator
     cov = np.eye(n)*sigma 
     mu = np.zeros(n)
     return multivariate_normal(mu,cov,k)

@@ -58,7 +58,7 @@ def getUndGraph(df_buses,df_lines ,network):
     G.add_nodes_from(node_list)
     # G.add_edges_from(edge_tuples)
     G.add_weighted_edges_from(weighted_edge_tuples)
-    unG = nx.Graph(G)#transform it into an undirected graph 
+    unG = nx.Graph(G)#transform it into an undirected graph in network x 
     ngnr = generators.shape[0]#the number of generators
 
     return n, ngnr, unG
