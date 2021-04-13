@@ -1,30 +1,21 @@
-from powerNetworkSolver import PowerNetworkSolver
-from powerNetwork import networkTransform, getGenerators, getBuses, getLines, getNumBuses, getNumLines
-from powerNetwork import getUndGraph, kron_reduction, edge_removing
-from disturbancesGnr import normaldisturbances
-from violationChecking import globalcheck
-import seaborn as sns;
+import seaborn as sns
 
-sns.set_theme()
+from powerNetwork import getUndGraph, kron_reduction
+from powerNetwork import networkTransform, getBuses, getLines
+from powerNetworkSolver import PowerNetworkSolver
+import numexpr as ne
+
+# sns.set_theme()
 # importing the function for multi-edge removal
-from powerNetwork import multi_edge_removing
-import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
-import copy
-from numpy.linalg import inv
-import networkx as nx
-from numpy.random import multivariate_normal
 from disturbancesGnr import normaldisturbances
-from scipy.integrate import odeint
-from violationChecking import violationcheck, globalcheck, globalchecksubset
-import time
 import math
-from functools import reduce
-from copy import deepcopy
-from greedy_algorithm import greedy_algorithm
 from pypower.api import case39
 from numpy.random import seed
+
+#
+# HERE: reset number of vml-threads
+ne.set_vml_num_threads(8)
 
 network39, subnetwork39 = networkTransform(case39())
 df_lines39 = getLines(subnetwork39)
