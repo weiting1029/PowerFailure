@@ -56,5 +56,5 @@ int_omega = omega0
 max_itr = 5
 type_rate = 1
 
-new_graph = greedy_algorithm(un_graph, int_theta, int_omega, D, M, K, OMEGA, KK, check_times, sigma, thres, t, nn,
+new_graph = greedy_algorithm(un_graph, n39 ,ngnr39, int_theta, int_omega, D, M, K, OMEGA, KK, check_times, sigma, thres, t, nn,
                              normaldisturbances, max_itr, type_rate)

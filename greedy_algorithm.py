@@ -21,7 +21,7 @@ def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, c
     while k <= max_itr:
         new_edge_list = list(new_graph.edges)
         new_num_edges = new_graph.number_of_edges()
-        rate_list = np.zeros(new_num_edges, 4)
+        rate_list = np.zeros((new_num_edges,4))
         new_edge = np.array(new_edge_list[0])  # initialize the edge
         new_rate = 1  # initialize the rate
         j = 0
