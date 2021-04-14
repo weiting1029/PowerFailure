@@ -1,19 +1,19 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # coding: utf-8
 
 # In[3]:
 import copy
 import matplotlib.pyplot as plt
-import pypsa  
+import pypsa
 from pypower.api import case39
 import networkx as nx
 import numpy as np
 from numpy.linalg import inv
 import sys
 
- 
+
 def networkTransform(case):
-    ppc = case #try case14() for a smaller network  
+    ppc = case #try case14() for a smaller network
     network = pypsa.Network()
     network.import_from_pypower_ppc(ppc)
     network.determine_network_topology()
@@ -58,7 +58,7 @@ def getUndGraph(df_buses,df_lines ,network):
     G.add_nodes_from(node_list)
     # G.add_edges_from(edge_tuples)
     G.add_weighted_edges_from(weighted_edge_tuples)
-    unG = nx.Graph(G)#transform it into an undirected graph in network x 
+    unG = nx.Graph(G)#transform it into an undirected graph in network x
     ngnr = generators.shape[0]#the number of generators
 
     return n, ngnr, unG
@@ -67,53 +67,53 @@ def getUndGraph(df_buses,df_lines ,network):
 
 
 
-#%% define the kron reduction function 
+#%% define the kron reduction function
 def kron_reduction(n, ngnr, unG):
     A = nx.to_numpy_matrix(unG)
     L = np.diag(np.squeeze(np.asarray(np.sum(A,axis = 0))))-A
     redL = L[(n-ngnr):n,(n-ngnr):n] - np.transpose(L[:n-ngnr,n-ngnr:n])@inv(L[:n-ngnr,:n-ngnr])@L[:n-ngnr,n-ngnr:n]
     redA = -redL
     np.fill_diagonal(redA, 0)
-    return A, redL, redA 
+    return A, redL, redA
 
 
 
-#%% define the function of removing edges 
+#%% define the function of removing edges
 def edge_removing(unG,re_edge):
     node1 = re_edge[0]
     node2 = re_edge[1]
-    copyunG = copy.deepcopy(unG) 
+    copyunG = copy.deepcopy(unG)
     copyunG.remove_edge(node1,node2)
-    
+
     if(len(list(nx.connected_components(copyunG)))==1):
         return copyunG
     else:
-        print("The graph is not connected without edge ("+ str(node1) + ", " + 
-              str(node2) + ")") 
+        print("The graph is not connected without edge ("+ str(node1) + ", " +
+              str(node2) + ")")
         return unG
-            
-        
+
+
 
 def multi_edge_removing(unG, args):
-    newunG = copy.deepcopy(unG) 
+    newunG = copy.deepcopy(unG)
     for edge in args:
         print(edge)
         newunG = edge_removing(newunG, edge)
 
-    return newunG 
-             
+    return newunG
 
-        
-        
-    
-    
 
-    
-    
-    
-    
-    
-# define the function of moving more edges 
+
+
+
+
+
+
+
+
+
+
+# define the function of moving more edges
 
 
 
