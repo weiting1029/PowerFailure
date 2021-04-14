@@ -4,7 +4,8 @@ from numpy.random import seed
 from numpy.linalg import matrix_power
 from scipy.linalg import fractional_matrix_power
 
-def normaldisturbances(n,k,sigma):
+
+def normaldisturbances(n, k, sigma):
     """
     ...
     Parameters
@@ -22,15 +23,14 @@ def normaldisturbances(n,k,sigma):
         (k,n)
 
     """
-    seed(100)#control the random disturbance generator
-    cov = np.eye(n)*sigma 
+    seed(100)  # control the random disturbance generator
+    cov = np.eye(n) * sigma
     mu = np.zeros(n)
-    return multivariate_normal(mu,cov,k)
+    return multivariate_normal(mu, cov, k)
 
 
-
-def correlated_disturbances(delta,alpha,tau,n,L,k):
-    cov_matrix = delta*tau**(2*alpha)*fractional_matrix_power(L+tau**(2*alpha)*np.eye(n),-alpha)
+def correlated_disturbances(delta, alpha, tau, n, L, k):
+    cov_matrix = delta * tau ** (2 * alpha) * fractional_matrix_power(L + tau ** (2 * alpha) * np.eye(n), -alpha)
     seed(100)
     mu = np.zeros
-    return multivariate_normal(mu,cov_matrix,k)
+    return multivariate_normal(mu, cov_matrix, k)
