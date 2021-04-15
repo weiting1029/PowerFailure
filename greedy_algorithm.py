@@ -37,12 +37,14 @@ def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, c
             rate_list[j, :] = temp_df39.mean(axis=0)
             if (rate_list[j, type_rate] < new_rate):
                 new_edge = temp_edge
-                prev_rata = new_rate
+                prev_rate = new_rate
                 new_rate = rate_list[j, type_rate]
             j += 1
         prev_graph = deepcopy(new_graph)
+        # print(new_edge)
         new_graph = edge_removing(prev_graph, new_edge)
         k += 1
+        # print(str(new_graph.number_of_edges())+"  " + str(k))
     return new_graph
 
 # show edge list

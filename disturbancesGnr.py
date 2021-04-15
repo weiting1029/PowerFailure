@@ -15,7 +15,7 @@ def normaldisturbances(n, k, sigma):
     k : int 
         sample size
     sigma : float 
-        a scalar to control the covariance matrix 
+        a scalar to control the covariance matrix
 
     Returns
     -------
