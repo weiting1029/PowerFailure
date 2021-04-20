@@ -3,7 +3,8 @@ from powerNetwork import networkTransform, getGenerators, getBuses, getLines, ge
 from powerNetwork import getUndGraph, kron_reduction, edge_removing
 from disturbancesGnr import normaldisturbances
 from violationChecking import globalcheck
-import seaborn as sns;
+import seaborn as sns
+
 
 sns.set_theme()
 # importing the function for multi-edge removal
@@ -14,7 +15,7 @@ import pandas as pd
 
 
 def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, check_times, sigma, thres, t, nn,
-                     dtb_gnr, max_itr,type_rate):
+                     dtb_gnr, max_itr, type_rate):
     new_graph = deepcopy(graph)
     k = 0
     node_list = np.arange(ngnr) + 1
@@ -41,10 +42,10 @@ def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, c
                 new_rate = rate_list[j, type_rate]
             j += 1
         prev_graph = deepcopy(new_graph)
-        # print(new_edge)
+        print(new_edge)
         new_graph = edge_removing(prev_graph, new_edge)
         k += 1
-        # print(str(new_graph.number_of_edges())+"  " + str(k))
+        print(str(new_graph.number_of_edges())+"  " + str(k))
     return new_graph
 
 # show edge list

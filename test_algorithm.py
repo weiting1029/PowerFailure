@@ -48,7 +48,7 @@ sol0 = np.pad(disturbances[0], (ngnr39, 0), 'constant', constant_values=(0, 0))
 single_sol = model39.solkuramoto(sol0, dt)
 # sol_domega = model39.getDotOmega(single_sol[:, :ngnr39], single_sol[:, ngnr39:], nn)
 
-check_times = 100
+check_times = 10
 KK = 100 # repetition times
 thres = np.array([0.2, 2])  # thres1 is for omega, thres2 is for omega_dot
 start_time  = time.time()

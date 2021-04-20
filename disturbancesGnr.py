@@ -5,7 +5,7 @@ from numpy.linalg import matrix_power
 from scipy.linalg import fractional_matrix_power
 
 
-def normaldisturbances(n, k, sigma):
+def normaldisturbances(n: object, k: object, sigma: object) -> object:
     """
     ...
     Parameters
@@ -30,7 +30,7 @@ def normaldisturbances(n, k, sigma):
 
 
 def correlated_disturbances(delta, alpha, tau, n, L, k):
-    cov_matrix = delta * tau ** (2 * alpha) * fractional_matrix_power(L + tau ** (2 * alpha) * np.eye(n), -alpha)
+    cov_matrix = delta * tau ** (2 * alpha) * fractional_matrix_power(L + (tau ** 2) * np.eye(n), -alpha)
     seed(100)
-    mu = np.zeros
+    mu = np.zeros(n)
     return multivariate_normal(mu, cov_matrix, k)
