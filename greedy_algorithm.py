@@ -42,7 +42,7 @@ def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, c
                 new_rate = rate_list[j, type_rate]
             j += 1
         prev_graph = deepcopy(new_graph)
-        print(new_edge)
+        print(new_edge) #print the edge to be removed
         new_graph = edge_removing(prev_graph, new_edge)
         k += 1
         print(str(new_graph.number_of_edges())+"  " + str(k))
