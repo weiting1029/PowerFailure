@@ -34,3 +34,13 @@ def correlated_disturbances(delta, alpha, tau, n, L, k):
     seed(100)
     mu = np.zeros(n)
     return multivariate_normal(mu, cov_matrix, k)
+
+
+# import numpy as np
+
+def correlation_from_covariance(covariance):
+    v = np.sqrt(np.diag(covariance))
+    outer_v = np.outer(v, v)
+    correlation = covariance / outer_v
+    correlation[covariance == 0] = 0
+    return correlation
