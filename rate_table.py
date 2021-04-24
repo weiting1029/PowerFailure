@@ -56,7 +56,7 @@ model39 = PowerNetworkSolver(theta0, omega0, redA39, ngnr39, D, M, K, OMEGA)
 from numpy.random import seed
 
 # generate numerical tracks
-# seed(100)
+seed(100)
 disturbances = correlated_disturbances(delta=1, alpha=1.5, tau=1.5, n=ngnr39, L=redL39, k=1)
 # disturbances = normaldisturbances(n=ngnr39,k=1,sigma=sigma)
 sol0 = np.pad(disturbances[0], (ngnr39, 0), 'constant', constant_values=(0, 0))
@@ -112,14 +112,14 @@ sol_domega = model39.getDotOmega(single_sol[:, :ngnr39], single_sol[:, ngnr39:],
 check_times = 100
 KK = 100  # repetition times
 thres = np.array([0.2, 2])  # thres1 is for omega, thres2 is for omega_dot
-iid_disturbances = normaldisturbances(n=ngnr39, k=KK, sigma=sigma)
-# cor_disturbances = correlated_disturbances(delta=1, alpha=1.5, tau=1.5, n=ngnr39, L=redL39, k=KK)
-rates39 = model39.Simulation(KK, check_times, sigma, thres, t, nn, iid_disturbances)
-df39 = pd.DataFrame({'Node': node_list, 'RoCoF': rates39['vcheck_domega'],
-                     'AFV': rates39['vcheck_omega'], 'AV': rates39['vcheck_any']})
-# print(df39.to_latex(index=False))
-#
-df39.to_excel('tables\original_network_cor_100.xlsx')
+# iid_disturbances = normaldisturbances(n=ngnr39, k=KK, sigma=sigma)
+# # cor_disturbances = correlated_disturbances(delta=1, alpha=1.5, tau=1.5, n=ngnr39, L=redL39, k=KK)
+# rates39 = model39.Simulation(KK, check_times, sigma, thres, t, nn, iid_disturbances)
+# df39 = pd.DataFrame({'Node': node_list, 'RoCoF': rates39['vcheck_domega'],
+#                      'AFV': rates39['vcheck_omega'], 'AV': rates39['vcheck_any']})
+# # print(df39.to_latex(index=False))
+# #
+# df39.to_excel('tables\original_network_cor_100.xlsx')
 
 # G3905 = multi_edge_removing(unG39, ([4, 5], [15, 16], [4, 14]))
 # A3905, redL3905, redA3905 = kron_reduction(n39, ngnr39, G3905)
@@ -147,7 +147,7 @@ df39.to_excel('tables\original_network_cor_100.xlsx')
 #     rate_list39[j, :] = temp_df39.mean(axis=0)
 #     j += 1
 
-KK = 3000
+KK = 1000
 can_alpha = np.arange(0, 3.1, 0.2)
 alpha_rates = np.zeros((len(can_alpha), 3))
 for i in range(len(can_alpha)):
@@ -161,3 +161,15 @@ for i in range(len(can_alpha)):
     alpha_rates[i, 1] = np.mean(temp_rates['vcheck_domega'])
     alpha_rates[i, 2] = np.mean(temp_rates['vcheck_any'])
 
+can_delta = np.arange(0, 3.1, 0.2)
+delta_rates = np.zeros((len(can_delta), 3))
+for i in range(len(can_delta)):
+    temp_disturbances = correlated_disturbances(delta=can_delta[i], alpha=1.5, tau=1.5, n=ngnr39, L=redL39, k=KK)
+    # disturbances = normaldisturbances(n=ngnr39,k=1,sigma=sigma)
+    # sol0 = np.pad(temp_disturbances[0], (ngnr39, 0), 'constant', constant_values=(0, 0))
+    # single_sol = model39.solkuramoto(sol0, dt)
+    # sol_domega = model39.getDotOmega(single_sol[:, :ngnr39], single_sol[:, ngnr39:], nn)
+    temp_rates = model39.Simulation(KK, check_times, sigma, thres, t, nn, temp_disturbances)
+    delta_rates[i, 0] = np.mean(temp_rates['vcheck_omega'])
+    delta_rates[i, 1] = np.mean(temp_rates['vcheck_domega'])
+    delta_rates[i, 2] = np.mean(temp_rates['vcheck_any'])

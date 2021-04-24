@@ -33,10 +33,10 @@ def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, c
             temp_model39 = PowerNetworkSolver(int_theta, int_omega, temp_redA, ngnr, D, M, K, OMEGA)
             temp_rates39 = temp_model39.Simulation(KK, check_times, sigma, thres, t, nn, dtb_gnr)
             temp_df39 = pd.DataFrame(
-                {'Node': node_list, 'RoCoF': temp_rates39['vcheck_omega'], 'AFV': temp_rates39['vcheck_theta'],
+                {'Node': node_list, 'RoCoF': temp_rates39['vcheck_domega'], 'AFV': temp_rates39['vcheck_omega'],
                  'AV': temp_rates39['vcheck_any']})
             rate_list[j, :] = temp_df39.mean(axis=0)
-            if (rate_list[j, type_rate] < new_rate):
+            if rate_list[j, type_rate] < new_rate:
                 new_edge = temp_edge
                 prev_rate = new_rate
                 new_rate = rate_list[j, type_rate]

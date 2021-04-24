@@ -89,8 +89,8 @@ def edge_removing(unG, re_edge):
     if len(list(nx.connected_components(copyunG))) == 1:
         return copyunG
     else:
-        print("The graph is not connected without edge ("+ str(node1) + ", " +
-              str(node2) + ")")
+        # print("The graph is not connected without edge ("+ str(node1) + ", " +
+        #       str(node2) + ")")
         return unG
 
 
