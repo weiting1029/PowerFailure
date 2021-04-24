@@ -43,8 +43,8 @@ M = np.array([0.2228, 0.1607, 0.1899, 0.1517, 0.1379, 0.1846, 0.1401, 0.1289, 0.
 D = np.array([0.0332, 0.076, 0.0862, 0.0838, 0.0674, 0.0862, 0.0743, 0.0716, 0.1101, 0.1333])
 # Ome = np.zeros(n)
 pi = math.pi
-t = 2
-nn = 100
+t = 10
+nn = 1000
 dt = np.linspace(0, t, nn + 1)
 
 sigma = 0.01
@@ -56,7 +56,7 @@ model39 = PowerNetworkSolver(theta0, omega0, redA39, ngnr39, D, M, K, OMEGA)
 from numpy.random import seed
 
 # generate numerical tracks
-seed(100)
+# seed(100)
 disturbances = correlated_disturbances(delta=1, alpha=1.5, tau=1.5, n=ngnr39, L=redL39, k=1)
 # disturbances = normaldisturbances(n=ngnr39,k=1,sigma=sigma)
 sol0 = np.pad(disturbances[0], (ngnr39, 0), 'constant', constant_values=(0, 0))
@@ -78,18 +78,18 @@ sol_domega = model39.getDotOmega(single_sol[:, :ngnr39], single_sol[:, ngnr39:],
 # plt.savefig('theta_corcov.png')
 #
 #
-# fig = plt.figure()
-# for i in range(ngnr39):
-#     omega = single_sol[:,ngnr39+i]
-#     plt.plot(dt, omega, "-", label="Omega"+ str(i+1))
-#
-#
-# plt.xlabel("Time")
-#
-# plt.ylabel("Omega")
-# plt.ylim(0, 1)
-# plt.legend()
-# plt.title('Natural rotation frequencies')
+fig = plt.figure()
+for i in range(ngnr39):
+    omega = single_sol[:,ngnr39+i]
+    plt.plot(dt, omega, "-", label="Omega"+ str(i+1))
+
+
+plt.xlabel("Time")
+
+plt.ylabel("Omega")
+plt.ylim(-2, 2)
+plt.legend()
+plt.title('Natural rotation frequencies')
 # plt.savefig('omega_corcov.png')
 #
 #
