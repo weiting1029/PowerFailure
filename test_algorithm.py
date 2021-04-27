@@ -66,7 +66,7 @@ un_graph = unG39
 int_theta = theta0
 int_omega = omega0
 max_itr = 5
-type_rate = 3
+type_rate = 1
 #
 start_time = time.time()
 graph_ROCOF = greedy_algorithm(un_graph, n39, ngnr39, int_theta, int_omega, D, M, K, OMEGA, KK, check_times, sigma,
