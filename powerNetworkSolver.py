@@ -2,7 +2,7 @@ import time
 
 import numpy as np
 from scipy.integrate import odeint
-
+from numba import jit
 from violationChecking import globalcheck
 
 
@@ -18,6 +18,7 @@ class PowerNetworkSolver(object):
         self.K = K
         self.OMEGA = OMEGA
 
+    @jit
     def kuramoto2nd(self, X, t):
         n = self.ngnr
         syn_omega = np.sum(self.OMEGA) / np.sum(self.D)
