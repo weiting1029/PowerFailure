@@ -3,6 +3,8 @@ import time
 import numpy as np
 import pandas as pd
 from scipy.integrate import odeint
+from numpy.linalg import eig
+from numpy.linalg import inv
 import numba as nb
 from violationChecking import globalcheck
 from multiprocessing import Pool
@@ -10,11 +12,12 @@ from disturbancesGnr import normaldisturbances
 
 
 class PowerNetworkSolver(object):
-    def __init__(self, int_theta, int_omega, A, ngnr, D, M, K, OMEGA):
+    def __init__(self, int_theta, int_omega, A, L, ngnr, D, M, K, OMEGA):
         super(PowerNetworkSolver, self).__init__()
         self.int_omega = int_omega
         self.int_theta = int_theta
         self.A = A
+        self.L = L
         self.ngnr = ngnr
         self.D = D
         self.M = M
@@ -37,6 +40,18 @@ class PowerNetworkSolver(object):
 
     def solkuramoto(self, sol0, dt):
         return odeint(self.kuramoto2nd, sol0, dt)
+
+    def explicit_solkuramoto(self, sol0):
+        n = self.ngnr
+        sub_matrix1 = np.multiply(inv(self.M), -np.reshape(self.D, (1, n)))
+        sub_matrix2 = -self.K @ inv(self.M) @ self.L
+        sub_matrix3 = np.concatenate(sub_matrix1, sub_matrix2, axis=1)
+        sub_matrix4 = np.concatenate(np.eye(n), np.zeros((n, n)), axis=1)
+        big_matrix = np.concatenate(sub_matrix3, sub_matrix4, axis=0)
+        eigVals, eigVecs = eig(big_matrix)
+        exp_Lambda = np.diag(np.exp(eigVals))
+        return eigVecs.dot(exp_Lambda).dot(eigVecs.T)@sol0
+
 
     def getDotOmega(self, theta, omega, nn):
         n = self.ngnr
