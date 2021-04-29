@@ -5,7 +5,8 @@ from powerNetwork import getUndGraph, kron_reduction
 from powerNetwork import networkTransform, getBuses, getLines
 from powerNetworkSolver import PowerNetworkSolver
 import numexpr as ne
-
+from functools import partial
+from itertools import repeat
 # sns.set_theme()
 # importing the function for multi-edge removal
 import numpy as np
@@ -15,6 +16,7 @@ from pypower.api import case39
 from numpy.random import seed
 import pandas as pd
 import time
+from multiprocessing import Pool
 
 #
 # HERE: reset number of vml-threads
@@ -42,7 +44,7 @@ omega0 = np.zeros(ngnr39)
 OMEGA = np.zeros(ngnr39)
 model39 = PowerNetworkSolver(theta0, omega0, redA39, ngnr39, D, M, K, OMEGA)
 
-seed(100)
+# seed(100)
 # disturbances = normaldisturbances(ngnr39, 1, sigma)
 # sol0 = np.pad(disturbances[0], (ngnr39, 0), 'constant', constant_values=(0, 0))
 # single_sol = model39.solkuramoto(sol0, dt)

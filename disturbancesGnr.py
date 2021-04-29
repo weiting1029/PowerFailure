@@ -23,7 +23,7 @@ def normaldisturbances(n, k, sigma):
         (k,n)
 
     """
-    seed(0)  # control the random disturbance generator
+    # seed(0)  # control the random disturbance generator
     cov = np.eye(n) * sigma
     mu = np.zeros(n)
     return multivariate_normal(mu, cov, k)
@@ -40,7 +40,7 @@ def correlated_disturbances(delta, alpha, tau, n, L, k):
     :return: (k,n) random vectors
     """
     cov_matrix = delta * tau ** (2 * alpha) * fractional_matrix_power(L + (tau ** 2) * np.eye(n), -alpha)
-    seed(100)
+    # seed(100)
     mu = np.zeros(n)
     return multivariate_normal(mu, cov_matrix, k)
 
