@@ -44,12 +44,13 @@ def main():
     seed(100)
     disturbances = normaldisturbances(ngnr39, 1, sigma)
     sol0 = np.pad(disturbances[0], (ngnr39, 0), 'constant', constant_values=(0, 0))
-    single_sol = model39.solkuramoto(sol0, dt)
-    # print(single_sol)
+    single_sol = model39.analytical_solkuramoto(sol0, dt)
+    return  single_sol
+
 
 if __name__ == "__main__":
     # starttime = time.time()
-    main()
+    test = main()
     # stoptime = time.time()
     # totaltime = stoptime - starttime
     # print("{:2.2}sec".format(totaltime))

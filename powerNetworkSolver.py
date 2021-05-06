@@ -44,7 +44,7 @@ class PowerNetworkSolver(object):
     def solkuramoto(self, sol0, dt):
         return odeint(self.kuramoto2nd, sol0, dt)
 
-    def explicit_solkuramoto(self, sol0, dt):
+    def analytical_solkuramoto(self, sol0, dt):
         n = self.ngnr
         sub_matrix1 = sla.inv(diags(self.M, format='csc').multiply(-sla.inv(diags(self.D, format='csc'))))
         sub_matrix2 = -self.K * sla.inv(diags(self.M, format='csc')) @ self.L
