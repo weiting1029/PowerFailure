@@ -116,6 +116,47 @@ class PowerNetworkSolver(object):
                 'mcheck_omega': mcheck_omega, 'mcheck_domega': mcheck_domega, 'mcheck_any': mcheck_any,
                 'totaltime': "{:2.2}sec".format(totaltime)}
 
+    def analytical_Simulation(self, check_times, thres, t, nn, disturbances):
+        KK = len(disturbances)
+        starttime = time.time()
+        n = self.ngnr
+        dt = np.linspace(0, t, nn + 1)
+        vcheck_omega = np.zeros(n)
+        vcheck_domega = np.zeros(n)
+        vcheck_any = np.zeros(n)
+        mcheck_omega = np.zeros((n, n))
+        mcheck_domega = np.zeros((n, n))
+        mcheck_any = np.zeros((n, n))
+
+        # disturbances = dtb_gnr(n, KK, sigma)
+
+        for k in range(KK):
+            sol0 = np.pad(disturbances[k], (0, n), 'constant', constant_values=(0, 0))
+            vec_sol = self.analytical_solkuramoto(sol0, dt)  # get analytical tracks for theta and omega
+            sol_domega = self.getDotOmega(vec_sol[:, n:], vec_sol[:, :n], nn)  # get numerical tracks for omega dot
+            omega_domega = np.concatenate((vec_sol[:, :n], sol_domega), axis=1)  # create a vector of [omega,domega]
+            all_check = globalcheck(omega_domega, check_times, thres, n, nn)
+            vcheck_omega += all_check[0]
+            vcheck_domega += all_check[1]
+            vcheck_any += all_check[2]
+
+            mcheck_omega += np.outer(all_check[0], all_check[0])
+            mcheck_domega += np.outer(all_check[1], all_check[1])
+            mcheck_any += np.outer(all_check[2], all_check[2])
+
+        vcheck_omega = vcheck_omega / KK
+        vcheck_domega = vcheck_domega / KK
+        vcheck_any = vcheck_any / KK
+        mcheck_omega = mcheck_omega / KK
+        mcheck_domega = mcheck_domega / KK
+        mcheck_any = mcheck_any / KK
+
+        stoptime = time.time()
+        totaltime = stoptime - starttime
+        return {'vcheck_omega': vcheck_omega, 'vcheck_domega': vcheck_domega, 'vcheck_any': vcheck_any,
+                'mcheck_omega': mcheck_omega, 'mcheck_domega': mcheck_domega, 'mcheck_any': mcheck_any,
+                'totaltime': "{:2.2}sec".format(totaltime)}
+
     #
     def parallelized_Simulation(self, check_times, thres, t, nn, sigma, KK):
         n = self.ngnr

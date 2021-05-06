@@ -71,9 +71,8 @@ def getUndGraph(df_buses, df_lines, network):
 def kron_reduction(n, ngnr, unG):
     A = nx.to_numpy_matrix(unG)
     L = np.diag(np.squeeze(np.asarray(np.sum(A, axis=0)))) - A
-    redL = L[(n - ngnr):n, (n - ngnr):n] - np.transpose(L[:n - ngnr, n - ngnr:n]) @ inv(L[:n - ngnr, :n - ngnr]) @ L[
-                                                                                                                   :n - ngnr,
-                                                                                                                   n - ngnr:n]
+    redL = L[(n - ngnr):n, (n - ngnr):n] - \
+           np.transpose(L[:n - ngnr, n - ngnr:n]) @ inv(L[:n - ngnr, :n - ngnr]) @ L[:n - ngnr, n - ngnr:n]
     redA = -redL
     np.fill_diagonal(redA, 0)
     return A, redL, redA

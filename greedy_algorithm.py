@@ -12,7 +12,7 @@ sns.set_theme()
 
 
 def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, check_times, sigma, thres, t, nn,
-                     dtb_gnr, max_itr, type_rate):
+                     dtb_gnr, max_itr, type_rate, disturbances):
     new_graph = deepcopy(graph)
     k = 0
     tol = 1e-5
@@ -32,8 +32,8 @@ def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, c
             temp_edge = np.array(i)
             temp_G = edge_removing(new_graph, temp_edge)
             temp_A, temp_redL, temp_redA = kron_reduction(n, ngnr, temp_G)
-            temp_model39 = PowerNetworkSolver(int_theta, int_omega, temp_redA, ngnr, D, M, K, OMEGA)
-            temp_rates39 = temp_model39.Simulation(KK, check_times, sigma, thres, t, nn, dtb_gnr)
+            temp_model39 = PowerNetworkSolver(int_theta, int_omega, temp_redA, temp_redL, ngnr, D, M, K, OMEGA)
+            temp_rates39 = temp_model39.analytical_Simulation(check_times, thres, t, nn, disturbances)
             temp_df39 = pd.DataFrame(
                 {'Node': node_list, 'RoCoF': temp_rates39['vcheck_domega'], 'AFV': temp_rates39['vcheck_omega'],
                  'AV': temp_rates39['vcheck_any']})

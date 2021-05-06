@@ -23,7 +23,7 @@ def normaldisturbances(n, k, sigma):
         (k,n)
 
     """
-    # seed(0)  # control the random disturbance generator
+    seed(100)  # control the random disturbance generator
     cov = np.eye(n) * sigma
     mu = np.zeros(n)
     return multivariate_normal(mu, cov, k)
