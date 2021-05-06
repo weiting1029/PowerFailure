@@ -1,3 +1,5 @@
+import seaborn as sns
+
 from greedy_algorithm import greedy_algorithm
 from powerNetwork import getUndGraph, kron_reduction
 from powerNetwork import networkTransform, getBuses, getLines
@@ -14,10 +16,6 @@ from pypower.api import case39
 from numpy.random import seed
 import pandas as pd
 import time
-from multiprocessing import Pool
-
-# HERE: reset number of vml-threads
-ne.set_vml_num_threads(6)
 
 network39, subnetwork39 = networkTransform(case39())
 df_lines39 = getLines(subnetwork39)
@@ -31,37 +29,28 @@ M = np.array([0.2228, 0.1607, 0.1899, 0.1517, 0.1379, 0.1846, 0.1401, 0.1289, 0.
 D = np.array([0.0332, 0.076, 0.0862, 0.0838, 0.0674, 0.0862, 0.0743, 0.0716, 0.1101, 0.1333])
 # Ome = np.zeros(n)
 pi = math.pi
-# t = 2
-# nn = 100
+t = 2
+nn = 100
+dt = np.linspace(0, t, nn + 1)
+
+sigma = 0.01
 theta0 = np.zeros(ngnr39)
 omega0 = np.zeros(ngnr39)
 OMEGA = np.zeros(ngnr39)
 model39 = PowerNetworkSolver(theta0, omega0, redA39, redL39, ngnr39, D, M, K, OMEGA)
 
 
-# KK = 100  # repetition times
-
-
-# test_rates39 = model39.Simulation(KK, check_times, sigma, thres, t, nn, disturbances)
-
 def main():
-    Ncpus = 5
-    N = 600
-    pool = Pool(Ncpus)
-    check_times = 10
-    thres = np.array([0.2, 2])
-    t = 2
-    nn = 100
-    sigma = 0.01
-    parallel_func = partial(model39.parallelized_Simulation, check_times, thres, t, nn, sigma)
-    pool.map(parallel_func, [N]*Ncpus)
-    pool.close()
-    pool.join()
+    seed(100)
+    disturbances = normaldisturbances(ngnr39, 1, sigma)
+    sol0 = np.pad(disturbances[0], (ngnr39, 0), 'constant', constant_values=(0, 0))
+    single_sol = model39.explicit_solkuramoto(sol0,dt)
+    print(single_sol)
 
 
 if __name__ == "__main__":
-    starttime = time.time()
+    # starttime = time.time()
     main()
-    stoptime = time.time()
-    totaltime = stoptime - starttime
-    print("{:2.2}sec".format(totaltime))
+    # stoptime = time.time()
+    # totaltime = stoptime - starttime
+    # print("{:2.2}sec".format(totaltime))
