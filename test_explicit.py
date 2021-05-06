@@ -44,9 +44,8 @@ def main():
     seed(100)
     disturbances = normaldisturbances(ngnr39, 1, sigma)
     sol0 = np.pad(disturbances[0], (ngnr39, 0), 'constant', constant_values=(0, 0))
-    single_sol = model39.explicit_solkuramoto(sol0,dt)
-    print(single_sol)
-
+    single_sol = model39.solkuramoto(sol0, dt)
+    # print(single_sol)
 
 if __name__ == "__main__":
     # starttime = time.time()

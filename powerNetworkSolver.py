@@ -1,6 +1,7 @@
 import time
 
 import numpy as np
+import scipy.linalg as la
 import scipy.sparse.linalg as sla
 from numpy.linalg import eig
 from scipy.integrate import odeint
@@ -8,9 +9,9 @@ from scipy.sparse import diags
 
 from disturbancesGnr import normaldisturbances
 from violationChecking import globalcheck
+
+
 # import scipy.sparse.csr_matrix.multiply as sp_matmul
-
-
 
 
 class PowerNetworkSolver(object):
@@ -45,18 +46,19 @@ class PowerNetworkSolver(object):
 
     def explicit_solkuramoto(self, sol0, dt):
         n = self.ngnr
-        sub_matrix1 = sla.inv(diags(self.M, format='csr').multiply(-sla.inv(diags(self.D, format='csr'))))
-        sub_matrix2 = -self.K*sla.inv(diags(self.M, format='csr')) @ self.L
+        sub_matrix1 = sla.inv(diags(self.M, format='csc').multiply(-sla.inv(diags(self.D, format='csc'))))
+        sub_matrix2 = -self.K * sla.inv(diags(self.M, format='csc')) @ self.L
         sub_matrix3 = np.concatenate((sub_matrix1.toarray(), sub_matrix2), axis=1)
         sub_matrix4 = np.concatenate((np.eye(n), np.zeros((n, n))), axis=1)
         big_matrix = np.concatenate((sub_matrix3, sub_matrix4), axis=0)
         eigVals, eigVecs = eig(big_matrix)
-        Lambda = np.diag(eigVals)
-        t_Lambda = np.zeros([2 * n, 2 * n, len(dt)])
+        # Lambda = np.diag(eigVals)
+        solutions = np.zeros([len(dt), 2 * n])
         for i in range(len(dt)):
-            t_Lambda[:, :, i] = dt[i] * Lambda
-        exp_Lambda = np.exp(t_Lambda)
-        return eigVecs.dot(exp_Lambda).dot(eigVecs.T)
+            solutions[i, :] = eigVecs @ np.diag(np.exp(dt[i] * eigVals)) @ la.inv(eigVecs) @ sol0
+            # print(np.exp(dt[i]*eigVals))
+        #     solutions[i, :] = np.diag(np.exp(dt[i]*eigVals)) @ sol0
+        return solutions
 
     def getDotOmega(self, theta, omega, nn):
         n = self.ngnr
