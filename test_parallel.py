@@ -17,7 +17,7 @@ import time
 from multiprocessing import Pool
 
 # HERE: reset number of vml-threads
-ne.set_vml_num_threads(8)
+ne.set_vml_num_threads(6)
 
 network39, subnetwork39 = networkTransform(case39())
 df_lines39 = getLines(subnetwork39)

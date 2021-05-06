@@ -9,6 +9,9 @@ import numba as nb
 from violationChecking import globalcheck
 from multiprocessing import Pool
 from disturbancesGnr import normaldisturbances
+from scipy.sparse import diags
+import scipy.sparse.linalg as sla
+
 
 
 class PowerNetworkSolver(object):
@@ -34,24 +37,23 @@ class PowerNetworkSolver(object):
         matrix1 = np.repeat(np.reshape(theta, (1, n)), n, axis=0)
         matrix2 = matrix1 - np.transpose(matrix1)
         sinmatrix = np.sin(matrix2)
-        domega = np.multiply(1 / self.M, -np.reshape(self.D, (1, n)) * dtheta + OMEGA0 - self.K * np.sum(
+        domega = np.multiply(1 /self.M, -np.reshape(self.D, (1, n)) * dtheta + OMEGA0 - self.K * np.sum(
             np.multiply(sinmatrix, self.A), axis=0))
         return np.append(dtheta, domega)
 
     def solkuramoto(self, sol0, dt):
         return odeint(self.kuramoto2nd, sol0, dt)
 
-    def explicit_solkuramoto(self, sol0):
+    def explicit_solkuramoto(self, sol0, dt):
         n = self.ngnr
-        sub_matrix1 = np.multiply(inv(self.M), -np.reshape(self.D, (1, n)))
-        sub_matrix2 = -self.K @ inv(self.M) @ self.L
+        sub_matrix1 = np.multiply(sla.inv(diags(self.M)), - sla.inv(diags(self.D)))
+        sub_matrix2 = -self.K @ sla.inv(diags(self.M)) @ self.L
         sub_matrix3 = np.concatenate(sub_matrix1, sub_matrix2, axis=1)
         sub_matrix4 = np.concatenate(np.eye(n), np.zeros((n, n)), axis=1)
         big_matrix = np.concatenate(sub_matrix3, sub_matrix4, axis=0)
         eigVals, eigVecs = eig(big_matrix)
         exp_Lambda = np.diag(np.exp(eigVals))
-        return eigVecs.dot(exp_Lambda).dot(eigVecs.T)@sol0
-
+        return eigVecs.dot(exp_Lambda).dot(eigVecs.T) @ sol0
 
     def getDotOmega(self, theta, omega, nn):
         n = self.ngnr
