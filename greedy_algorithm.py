@@ -44,7 +44,7 @@ def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, c
                 new_rate = rate_list[j, type_rate]
             j += 1
         # prev_rate = new_rate
-        if np.abs(new_rate - prev_rate) <= tol:
+        if new_rate >= prev_rate:
             continuation = False  # end the outer loop
 
         prev_graph = deepcopy(new_graph)
