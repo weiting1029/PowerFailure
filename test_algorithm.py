@@ -50,12 +50,13 @@ seed(100)
 # single_sol = model39.solkuramoto(sol0, dt)
 # sol_domega = model39.getDotOmega(single_sol[:, :ngnr39], single_sol[:, ngnr39:], nn)
 
-check_times = 10
-KK = 100  # repetition times
+check_times = 100
+KK = 3000 # repetition times
 disturbances = normaldisturbances(ngnr39, KK, sigma)
 thres = np.array([0.2, 2])  # thres1 is for omega, thres2 is for omega_dot
 # start_time = time.time()
-# test_rates39 = model39.analytical_Simulation(check_times, thres, t, nn, disturbances)
+test_rates39 = model39.analytical_Simulation(check_times, thres, t, nn, disturbances)
+
 # end_time = time.time()
 # temp = end_time - start_time
 # hours = temp // 3600
