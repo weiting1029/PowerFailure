@@ -2,6 +2,8 @@ from greedy_algorithm import greedy_algorithm
 from powerNetwork import getUndGraph, kron_reduction
 from powerNetwork import networkTransform, getBuses, getLines
 from powerNetworkSolver import PowerNetworkSolver
+import warnings
+warnings.filterwarnings("ignore")
 import numexpr as ne
 from functools import partial
 from itertools import repeat
@@ -17,7 +19,7 @@ import time
 from multiprocessing import Pool
 
 # HERE: reset number of vml-threads
-ne.set_vml_num_threads(6)
+# ne.set_vml_num_threads(6)
 
 network39, subnetwork39 = networkTransform(case39())
 df_lines39 = getLines(subnetwork39)
@@ -45,23 +47,38 @@ model39 = PowerNetworkSolver(theta0, omega0, redA39, redL39, ngnr39, D, M, K, OM
 # test_rates39 = model39.Simulation(KK, check_times, sigma, thres, t, nn, disturbances)
 
 def main():
-    Ncpus = 5
-    N = 600
-    pool = Pool(Ncpus)
-    check_times = 10
+    # Ncpus = 5
+    # N = 600
+    # pool = Pool(Ncpus)
+
+    # parallel_func = partial(model39.parallelized_Simulation, check_times, thres, t, nn, sigma)
+    # pool.map(parallel_func, [N]*Ncpus)
+    # pool.close()
+    # pool.join()
+
+    check_times = 100
     thres = np.array([0.2, 2])
     t = 2
     nn = 100
     sigma = 0.01
-    parallel_func = partial(model39.parallelized_Simulation, check_times, thres, t, nn, sigma)
-    pool.map(parallel_func, [N]*Ncpus)
-    pool.close()
-    pool.join()
+    KK = 3000
+    disturbances = normaldisturbances(ngnr39, KK, sigma)
+    result = model39.parallelized_analytical_sml(check_times, thres, t, nn, disturbances)
+    df_total = pd.DataFrame({'Node': node_list, 'RoCoF': np.zeros(ngnr39), 'AFV': np.zeros(ngnr39), 'AV': np.zeros(ngnr39)})
+    for df in result:
+        df_total['RoCoF'] = df_total['RoCoF'] + df['RoCoF']
+        df_total['AFV'] = df_total['AFV'] + df['AFV']
+        df_total['AV'] = df_total['AV'] + df['AV']
+
+    df_total['RoCoF'] = df_total['RoCoF'] / KK
+    df_total['AFV'] = df_total['AFV'] / KK
+    df_total['AV'] = df_total['AV'] / KK
+    return df_total
 
 
 if __name__ == "__main__":
-    starttime = time.time()
-    main()
-    stoptime = time.time()
-    totaltime = stoptime - starttime
-    print("{:2.2}sec".format(totaltime))
+    start_time = time.time()
+    test = main()
+    stop_time = time.time()
+    total_time = stop_time - start_time
+    print("{:2.2}sec".format(total_time))

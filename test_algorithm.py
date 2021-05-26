@@ -1,5 +1,6 @@
-import seaborn as sns
-
+# import seaborn as sns
+import warnings
+warnings.filterwarnings("ignore")
 from greedy_algorithm import greedy_algorithm
 from powerNetwork import getUndGraph, kron_reduction
 from powerNetwork import networkTransform, getBuses, getLines
@@ -16,11 +17,12 @@ from pypower.api import case39
 from numpy.random import seed
 import pandas as pd
 import time
-from multiprocessing import Pool
+import multiprocessing as mp
+from multiprocessing import freeze_support
 
 #
 # HERE: reset number of vml-threads
-ne.set_vml_num_threads(8)
+# ne.set_vml_num_threads(8)
 
 network39, subnetwork39 = networkTransform(case39())
 df_lines39 = getLines(subnetwork39)
@@ -45,17 +47,27 @@ OMEGA = np.zeros(ngnr39)
 model39 = PowerNetworkSolver(theta0, omega0, redA39, redL39, ngnr39, D, M, K, OMEGA)
 
 seed(100)
+
+#
+check_times = 100
+KK = 3000  # repetition times
+disturbances = normaldisturbances(ngnr39, KK, sigma)
+thres = np.array([0.2, 2])  # thres1 is for omega, thres2 is for omega_dot
+# start_time = time.time()
+# test_rates39 = model39.analytical_Simulation(check_times, thres, t, nn, disturbances)
+# end_time = time.time()
+# print('the regular routine costs ' + str(end_time - start_time) + 's')
+# start_time = time.time()
+# test_rates39 = model39.parallelized_analytical_sml(check_times, thres, t, nn, disturbances)
+# end_time = time.time()
+# print('the parallelized routine costs ' + str(end_time - start_time) + 's')
+#
+
 # disturbances = normaldisturbances(ngnr39, 1, sigma)
 # sol0 = np.pad(disturbances[0], (ngnr39, 0), 'constant', constant_values=(0, 0))
 # single_sol = model39.solkuramoto(sol0, dt)
 # sol_domega = model39.getDotOmega(single_sol[:, :ngnr39], single_sol[:, ngnr39:], nn)
 
-check_times = 100
-KK = 3000 # repetition times
-disturbances = normaldisturbances(ngnr39, KK, sigma)
-thres = np.array([0.2, 2])  # thres1 is for omega, thres2 is for omega_dot
-# start_time = time.time()
-test_rates39 = model39.analytical_Simulation(check_times, thres, t, nn, disturbances)
 
 # end_time = time.time()
 # temp = end_time - start_time
@@ -65,29 +77,74 @@ test_rates39 = model39.analytical_Simulation(check_times, thres, t, nn, disturba
 # seconds = temp - 60 * minutes
 # print('%d:%d:%d' % (hours, minutes, seconds))
 #
-un_graph = unG39
-int_theta = theta0
-int_omega = omega0
-max_itr = 5
-type_rate = 1
-#
-start_time = time.time()
-graph_ROCOF = greedy_algorithm(un_graph, n39, ngnr39, int_theta, int_omega, D, M, K, OMEGA, KK, check_times, sigma,
-                               thres, t, nn, disturbances, max_itr, type_rate, disturbances)
-end_time = time.time()
-temp = end_time - start_time
-hours = temp // 3600
-temp = temp - 3600 * hours
-minutes = temp // 60
-seconds = temp - 60 * minutes
-print('%d:%d:%d' % (hours, minutes, seconds))
-# print("total calculation time is time.time(): %f " % (end_times-start_time))
 
-A_ROCOF, redL_ROCOF, redA_ROCOF = kron_reduction(n39, ngnr39, graph_ROCOF)
-model39_ROCOF = PowerNetworkSolver(int_theta, int_omega, redA_ROCOF, redL_ROCOF, ngnr39, D, M, K, OMEGA)
-rates39_ROCOF = model39_ROCOF.analytical_Simulation(check_times, thres, t, nn, disturbances)
-df39_ROCOF = pd.DataFrame(
-    {'Node': node_list, 'RoCoF': rates39_ROCOF['vcheck_domega'], 'AFV': rates39_ROCOF['vcheck_omega'],
-     'AV': rates39_ROCOF['vcheck_any']})
+#
+# start_time = time.time()
+# graph_ROCOF = greedy_algorithm(un_graph, n39, ngnr39, int_theta, int_omega, D, M, K, OMEGA, KK, check_times, sigma,
+#                                thres, t, nn, disturbances, max_itr, type_rate, disturbances)
+# end_time = time.time()
+# temp = end_time - start_time
+# hours = temp // 3600
+# temp = temp - 3600 * hours
+# minutes = temp // 60
+# seconds = temp - 60 * minutes
+# print('%d:%d:%d' % (hours, minutes, seconds))
+# print("total calculation time is time.time(): %f " % (end_time-start_time))
+
+# A_ROCOF, redL_ROCOF, redA_ROCOF = kron_reduction(n39, ngnr39, graph_ROCOF)
+# model39_ROCOF = PowerNetworkSolver(int_theta, int_omega, redA_ROCOF, redL_ROCOF, ngnr39, D, M, K, OMEGA)
+# rates39_ROCOF_list = model39_ROCOF.parallelized_analytical_sml(check_times, thres, t, nn, disturbances)
+# df_total = pd.DataFrame({'Node': node_list, 'RoCoF': np.zeros(ngnr39), 'AFV': np.zeros(ngnr39), 'AV': np.zeros(ngnr39)})
+# for df in rates39_ROCOF_list:
+#     df_total['RoCoF'] = df_total['RoCoF'] + df['RoCoF']
+#     df_total['AFV'] = df_total['AFV'] + df['AFV']
+#     df_total['AV'] = df_total['AV'] + df['AV']
+#
+# df_total['RoCoF'] = df_total['RoCoF'] / KK
+# df_total['AFV'] = df_total['AFV'] / KK
+# df_total['AV'] = df_total['AV'] / KK
+
+
+def main():
+    pool = mp.Pool(4)
+    un_graph = unG39
+    int_theta = theta0
+    int_omega = omega0
+    max_itr = 5
+    type_rate = 1
+    start_time = time.time()
+    graph_ROCOF = greedy_algorithm(un_graph, n39, ngnr39, int_theta, int_omega, D, M, K, OMEGA, KK, check_times,
+                                   thres, t, nn, max_itr, type_rate, disturbances, pool)
+
+    end_time = time.time()
+    temp = end_time - start_time
+    hours = temp // 3600
+    temp = temp - 3600 * hours
+    minutes = temp // 60
+    seconds = temp - 60 * minutes
+    print('%d:%d:%d' % (hours, minutes, seconds))
+    print("total calculation time is time.time(): %f " % (end_time - start_time))
+
+    A_ROCOF, redL_ROCOF, redA_ROCOF = kron_reduction(n39, ngnr39, graph_ROCOF)
+    model39_ROCOF = PowerNetworkSolver(int_theta, int_omega, redA_ROCOF, redL_ROCOF, ngnr39, D, M, K, OMEGA)
+    rates39_ROCOF_list = model39_ROCOF.parallelized_analytical_sml(check_times, thres, t, nn, disturbances, pool)
+    df_total = pd.DataFrame(
+        {'Node': node_list, 'RoCoF': np.zeros(ngnr39), 'AFV': np.zeros(ngnr39), 'AV': np.zeros(ngnr39)})
+    for df in rates39_ROCOF_list:
+        df_total['RoCoF'] = df_total['RoCoF'] + df['RoCoF']
+        df_total['AFV'] = df_total['AFV'] + df['AFV']
+        df_total['AV'] = df_total['AV'] + df['AV']
+
+    df_total['RoCoF'] = df_total['RoCoF'] / KK
+    df_total['AFV'] = df_total['AFV'] / KK
+    df_total['AV'] = df_total['AV'] / KK
+    pool.close()
+    pool.join()
+    return df_total
+
+
 # rate_list[j, :] = temp_df39.mean(axis=0)
 # df39_ROCOF.to_excel("tables/greedy_violation_test3.xlsx", sheet_name="av")
+if __name__ == "__main__":
+    freeze_support()
+    test = main()

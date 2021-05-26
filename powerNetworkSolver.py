@@ -1,4 +1,5 @@
 import time
+from functools import partial
 
 import numpy as np
 import scipy.linalg as la
@@ -6,9 +7,13 @@ import scipy.sparse.linalg as sla
 from numpy.linalg import eig
 from scipy.integrate import odeint
 from scipy.sparse import diags
-
+from os import fork, getpid
 from disturbancesGnr import normaldisturbances
 from violationChecking import globalcheck
+
+import multiprocessing as mp
+
+import pandas as pd
 
 
 # import scipy.sparse.csr_matrix.multiply as sp_matmul
@@ -171,10 +176,10 @@ class PowerNetworkSolver(object):
         mcheck_any = np.zeros((n, n))
 
         for k in range(KK):
-            sol0 = np.pad(disturbances[k], (n, 0), 'constant', constant_values=(0, 0))
-            vec_sol = self.solkuramoto(sol0, dt)  # get numerical tracks for theta and omega
-            sol_domega = self.getDotOmega(vec_sol[:, :n], vec_sol[:, n:], nn)  # get numerical tracks for omega dot
-            omega_domega = np.concatenate((vec_sol[:, n:], sol_domega), axis=1)  # create a vector of [omega,domega]
+            sol0 = np.pad(disturbances[k], (0, n), 'constant', constant_values=(0, 0))
+            vec_sol = self.analytical_solkuramoto(sol0, dt)  # get analytical tracks for theta and omega
+            sol_domega = self.getDotOmega(vec_sol[:, n:], vec_sol[:, :n], nn)  # get numerical tracks for omega dot
+            omega_domega = np.concatenate((vec_sol[:, :n], sol_domega), axis=1)  # create a vector of [omega,domega]
             all_check = globalcheck(omega_domega, check_times, thres, n, nn)
             vcheck_omega += all_check[0]
             vcheck_domega += all_check[1]
@@ -192,3 +197,36 @@ class PowerNetworkSolver(object):
         mcheck_any = mcheck_any / KK
 
         return vcheck_any
+
+    def k_simulation(self, check_times, thres, t, nn, disturbances, k):
+        n = self.ngnr
+        dt = np.linspace(0, t, nn + 1)
+
+        sol0 = np.pad(disturbances[k], (0, n), 'constant', constant_values=(0, 0))
+        vec_sol = self.analytical_solkuramoto(sol0, dt)  # get analytical tracks for theta and omega
+        sol_domega = self.getDotOmega(vec_sol[:, n:], vec_sol[:, :n], nn)  # get numerical tracks for omega dot
+        omega_domega = np.concatenate((vec_sol[:, :n], sol_domega), axis=1)  # create a vector of [omega,domega]
+        all_check = globalcheck(omega_domega, check_times, thres, n, nn)
+        vcheck_omega = all_check[0]
+        vcheck_domega = all_check[1]
+        vcheck_any = all_check[2]
+
+        mcheck_omega = np.outer(all_check[0], all_check[0])
+        mcheck_domega = np.outer(all_check[1], all_check[1])
+        mcheck_any = np.outer(all_check[2], all_check[2])
+
+        df = pd.DataFrame({'RoCoF': vcheck_domega, 'AFV': vcheck_omega,
+                           'AV': vcheck_any})
+        # print("I'm process", getpid())
+        return df
+
+    #
+    def parallelized_analytical_sml(self, check_times, thres, t, nn, disturbances, pool):
+        # pool = mp.Pool(8)
+        # print(mp.cpu_count() - 4)
+        KK = len(disturbances)
+        parallel_function = partial(self.k_simulation, check_times, thres, t, nn, disturbances)
+        results = pool.map(parallel_function, [k for k in range(KK)])
+        # pool.close()
+        # pool.join()
+        return results
