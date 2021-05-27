@@ -21,7 +21,9 @@ def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, c
     new_rate = 1
     # prev_rate = 1
     continuation = True
+    # init_num_edges = graph.number_of_edges()
     # start_time =0
+    opt_obj = []
     while k <= max_itr and continuation:
         new_edge_list = list(new_graph.edges)
         new_num_edges = new_graph.number_of_edges()
@@ -30,15 +32,16 @@ def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, c
         # new_rate = 1  # initialize the rate
         prev_rate = new_rate
         j = 0
+        counter = 0
         for i in new_edge_list:
             temp_edge = np.array(i)
             connecting, temp_G = edge_removing(new_graph, temp_edge)
-
             if connecting:
                 temp_A, temp_redL, temp_redA = kron_reduction(n, ngnr, temp_G)
                 temp_model39 = PowerNetworkSolver(int_theta, int_omega, temp_redA, temp_redL, ngnr, D, M, K, OMEGA)
                 start_time = time.time()
                 temp_list = temp_model39.parallelized_analytical_sml(check_times, thres, t, nn, disturbances, pool)
+                counter += 1
                 # start_time = time.time()
                 end_time = time.time()
                 temp = end_time - start_time
@@ -62,14 +65,14 @@ def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, c
                 rate_list[j, :] = df_total.mean(axis=0)
                 if rate_list[j, type_rate] < new_rate:
                     new_edge = temp_edge
-                    # prev_rate = new_rate
+                    prev_rate = new_rate
                     new_rate = rate_list[j, type_rate]
-                j += 1
-            else:
-                new_rate = prev_rate
-                j += 1
+                    opt_obj.append(new_rate)
+                    # print("the new rate is: " + str(new_rate))
+            j += 1
 
         # prev_rate = new_rate
+        # print('the number of inner iterations: ' + str(counter))
         if new_rate >= prev_rate:
             continuation = False  # end the outer loop
 
@@ -82,7 +85,7 @@ def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, c
 
     # pool.close()
     # pool.join()
-    return new_graph
+    return new_graph, opt_obj
 
 # show edge list
 # # print
