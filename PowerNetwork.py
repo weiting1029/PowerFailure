@@ -11,7 +11,6 @@ import numpy as np
 from numpy.linalg import inv
 import sys
 
-
 def networkTransform(case):
     ppc = case  # try case14() for a smaller network
     network = pypsa.Network()

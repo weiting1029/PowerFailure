@@ -36,3 +36,16 @@ ax1.plot(can_delta, delta_rates[:, 0], 'r', label='AFV')
 ax1.plot(can_delta, delta_rates[:, 1], 'b', label='RoCoF')
 ax1.plot(can_delta, delta_rates[:, 2], 'g', label='AV')
 
+
+
+####
+plt.plot(obj_list[0], label ='Policy I')
+plt.plot(obj_list[1], label ='Policy II')
+plt.plot(obj_list[2], label = 'Policy III')
+plt.ylabel('objective values')
+plt.xlabel('iterations')
+plt.legend()
+plt.savefig('gd_alg_obj.png')
+
+
+
