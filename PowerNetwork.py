@@ -86,18 +86,18 @@ def edge_removing(unG, re_edge):
     copyunG.remove_edge(node1, node2)
 
     if len(list(nx.connected_components(copyunG))) == 1:
-        return copyunG
+        return True, copyunG
     else:
         # print("The graph is not connected without edge ("+ str(node1) + ", " +
         #       str(node2) + ")")
-        return unG
+        return False, unG
 
 
 def multi_edge_removing(unG, args):
-    newunG = copy.deepcopy(unG)
+    new_unG = copy.deepcopy(unG)
     for edge in args:
         print(edge)
-        newunG = edge_removing(newunG, edge)
-    return newunG
+        connecting, new_unG = edge_removing(new_unG, edge)
+    return new_unG
 
 # define the function of moving more edges

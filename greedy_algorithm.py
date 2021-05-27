@@ -21,7 +21,7 @@ def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, c
     new_rate = 1
     # prev_rate = 1
     continuation = True
-    start_time =0
+    # start_time =0
     while k <= max_itr and continuation:
         new_edge_list = list(new_graph.edges)
         new_num_edges = new_graph.number_of_edges()
@@ -37,13 +37,11 @@ def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, c
             if connecting:
                 temp_A, temp_redL, temp_redA = kron_reduction(n, ngnr, temp_G)
                 temp_model39 = PowerNetworkSolver(int_theta, int_omega, temp_redA, temp_redL, ngnr, D, M, K, OMEGA)
+                start_time = time.time()
+                temp_list = temp_model39.parallelized_analytical_sml(check_times, thres, t, nn, disturbances, pool)
+                # start_time = time.time()
                 end_time = time.time()
                 temp = end_time - start_time
-                print("total calculation time is time.time(): %f " % temp)
-                temp_list = temp_model39.parallelized_analytical_sml(check_times, thres, t, nn, disturbances, pool)
-                start_time = time.time()
-                # end_time = time.time()
-                # temp = end_time - start_time
                 # print("total calculation time is time.time(): %f " % temp)
                 df_total = pd.DataFrame(
                     {'Node': node_list, 'RoCoF': np.zeros(ngnr), 'AFV': np.zeros(ngnr), 'AV': np.zeros(ngnr)})
