@@ -75,7 +75,7 @@ def greedy_algorithm(graph, n, ngnr, int_theta, int_omega, D, M, K, OMEGA, KK, c
 
         prev_graph = deepcopy(new_graph)
         # print(new_edge)  # print the edge to be removed
-        new_graph = edge_removing(prev_graph, new_edge)
+        connecting2, new_graph = edge_removing(prev_graph, new_edge)
         k += 1
         print(str(new_graph.number_of_edges()) + " : " + str(k) + ", and the edge is " +
               str(new_edge))

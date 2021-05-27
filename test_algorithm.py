@@ -1,6 +1,7 @@
 # import seaborn as sns
 import warnings
 
+import numexpr as ne
 warnings.filterwarnings("ignore")
 from greedy_algorithm import greedy_algorithm
 from powerNetwork import getUndGraph, kron_reduction
@@ -18,7 +19,7 @@ from multiprocessing import freeze_support
 import openpyxl
 #
 # HERE: reset number of vml-threads
-# ne.set_vml_num_threads(8)
+ne.set_vml_num_threads(8)
 
 network39, subnetwork39 = networkTransform(case39())
 df_lines39 = getLines(subnetwork39)
